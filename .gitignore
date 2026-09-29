@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+.DS_Store
+runs/
+prd.md
+s3-markers.png

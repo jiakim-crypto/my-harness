@@ -1,0 +1,27 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+body{margin:0;background:#eef1ec;font-family:'NanumSquareRound','Pretendard',sans-serif;color:#20211f}
+.screen{width:393px;height:852px;background:#fbfffa;display:flex;flex-direction:column}
+.sb{height:54px}
+.hi{height:34px}
+.body{flex:1;display:flex;flex-direction:column;gap:12px;padding:20px}
+.title{font-size:22px;font-weight:800;color:#20211f}
+.txt{font-size:15px;font-weight:400;color:#434542}
+.btn{background:#135000;color:#b7ff8d;border-radius:16px;padding:8px 20px;font-size:16px;font-weight:700;height:40px}
+.chip{background:#1350001f;color:#135000;border-radius:100px;padding:4px 8px;font-size:12px;font-weight:700}
+.doc{font-size:12.5px;color:rgba(0,0,0,.45)}
+</style></head><body>
+<div class="screen" data-screen="오늘의 표현" data-after="capture">
+  <div class="sb" data-part="statusbar"></div>
+  <div class="body" data-flow="diary" data-name="위젯으로 찍기">
+    <div class="title">오늘의 표현</div>
+    <div class="chip" data-input="photo">사진 찍기</div>
+    <div class="txt">grab a bite</div>
+    <div class="txt" data-action="dismiss">닫기</div>
+    <div class="btn">배우기</div>
+    <div data-new="사진 스택 카드" style="border-radius:13px;padding:7px;background:#abcdef">스택</div>
+  </div>
+  <div class="hi" data-part="home-indicator"></div>
+</div>
+<p class="doc" data-decision="배우기 버튼 형태">근거: Apple HIG Buttons, 화면 하단 주 행동은 전체 폭 버튼</p>
+<p class="doc" data-recheck>찍은 사람이 닫기와 배우기 중 고를 수 있다. 목표(원할 때 배우기)가 달성된다</p>
+</body></html>
