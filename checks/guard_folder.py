@@ -15,6 +15,7 @@ ALLOWED = {
     "screen": r"runs/[^/]+/s3/",
     "figma": r"runs/[^/]+/s4/",
     "policy": r"runs/[^/]+/s5/",
+    "archive": r"runs/[^/]+/s6/",
     "judge": None,
 }
 
@@ -29,6 +30,9 @@ def main():
     rule = ALLOWED[agent]
     if rule is None:
         print(f"judge는 파일을 쓸 수 없다: {path}", file=sys.stderr)
+        sys.exit(2)
+    if agent == "archive" and re.search(r"snapshot-[^/]*\.json$", path):
+        print(f"snapshot 파일은 오케스트레이터만 쓴다. 막은 경로: {path}", file=sys.stderr)
         sys.exit(2)
     if not re.search(rule, path):
         folder = rule.replace("[^/]+", "<PRD>")

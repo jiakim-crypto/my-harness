@@ -86,10 +86,11 @@ def main():
     write("G6", "fail", {"s3/s3-wireframe.html": wf6})
 
     # G7 조립 규칙·근거·되묻기
-    lib = GOOD_BODY + '\n    <div data-lib="DiaryCard"><div style="font-size:28px;font-weight:800;color:#0000004d">16</div></div>'
+    lib = GOOD_BODY + '\n    <div data-lib="DiaryCard"><div style="font-size:28px;font-weight:800;color:#0000004d">16</div></div>' \
+        + '\n    <div style="font-size:22px">💬</div><div style="font-size:22px">🏋️</div>'  # 22 이모지 2개는 큰 글자로 세지 않는다
     write("G7", "pass", {"s3/s3-wireframe.html": page(lib, doc=GOOD_DOC)})
     bad7_body = GOOD_BODY.replace('<div class="title">오늘의 표현</div>',
-                                  '<div class="title">오늘의 표현</div>\n    <div class="title">두 번째 큰 제목</div>\n    <div class="btn" style="height:120px">초록 면 하나 더</div>')
+                                  '<div class="title">오늘의 표현</div>\n    <div class="title">두 번째 큰 제목</div>\n    <div class="btn" style="height:120px">초록 면 하나 더</div>\n    <div data-lib="ButtonFull" style="height:56px;border-radius:16px">투명 버튼</div>')
     bad7_doc = '<p class="doc" data-decision="배우기 버튼 형태">예뻐서 골랐다</p>'
     write("G7", "fail", {"s3/s3-wireframe.html": page(bad7_body, doc=bad7_doc)})
 
@@ -129,12 +130,150 @@ def main():
     # G10 · G11 · G12 정책 카드
     write("G10", "pass", {"s5/s5-handoff.md": "figma-lint 14번: 0\n"})
     write("G10", "fail", {"s5/s5-handoff.md": "figma-lint 14번: 2\n"})
-    cards = "| 화면 | 블록 | 문장 | PRD 링크 |\n|---|---|---|---|\n| 위젯 ① | 분기 | 오늘 일기 없음 → 찍어두기 노출 | [5-1](https://app.notion.com/p/x#5-1) |\n| 위젯 ② | 값 | 뜻 상한 7자 | [5-1](https://app.notion.com/p/x#5-1) |\n"
+    link = "참조 PRD 5-1 (https://app.notion.com/p/x)"
+    cards = f"""## 카드: 위젯 · 기본 정책
+위젯 · 기본 정책
+[상태]
+- 오늘 일기 없음 → 찍어두기 노출
+  - 자정에 찍기 전 상태로 리셋
+[문구]
+- 뜻 상한 7자
+{link}
+
+## 카드: 위젯 안내 · 화면
+위젯 안내
+[노출]
+- 첫 학습 완료 직후 1회
+{link}
+"""
     write("G11", "pass", {"s5/s5-policy-cards.md": cards})
-    write("G11", "fail", {"s5/s5-policy-cards.md": cards.replace("뜻 상한 7자", "뜻 상한 7자. 길면 잘리기 때문에 대안을 검토함")})
+    long_card = "\n".join(f"- 정책 줄 {i}" for i in range(16))
+    bad11 = cards.replace("- 뜻 상한 7자", "- 뜻 상한 7자. 길면 잘리기 때문에 대안을 검토함\n" + long_card).replace("- 첫 학습 완료 직후 1회", "- 오늘 일기 없음 → 찍어두기 노출")
+    write("G11", "fail", {"s5/s5-policy-cards.md": bad11})
     write("G12", "pass", {"s5/s5-policy-cards.md": cards})
-    write("G12", "fail", {"s5/s5-policy-cards.md": cards.replace("[5-1](https://app.notion.com/p/x#5-1) |\n| 위젯 ②", " |\n| 위젯 ②")})
+    write("G12", "fail", {"s5/s5-policy-cards.md": cards.replace(link + "\n\n## 카드", "\n## 카드", 1)})
+
+    # G14 엣지케이스 점검표
+    cats = ["권한", "생성 실패", "빈 상태", "한도", "시간 경계", "언어 전환", "로그인", "다크 모드", "진입 경로"]
+    edge = "| 분류 | 케이스 | 처리 | 기본값 |\n|---|---|---|---|\n" + "".join(f"| {c} | {c} 케이스 | 정책: 카드에 적음 | |\n" for c in cats) + "| 시간 경계 | 23:59 촬영 | 지아 결정 | 찍은 날짜에 저장 |\n| 권한 | 카메라 거부 | 공통 처리 | |\n"
+    write("G14", "pass", {"s3/s3-edge-cases.md": edge})
+    bad14 = "| 분류 | 케이스 | 처리 | 기본값 |\n|---|---|---|---|\n| 권한 | 카메라 거부 | 나중에 | |\n| 빈 상태 | 목록 0개 | 지아 결정 | |\n"
+    write("G14", "fail", {"s3/s3-edge-cases.md": bad14})
+    # G15 이벤트 어노테이션 표
+    ev_ok = "| 이벤트 | 속성·값 | 화면(노드) | PRD 8절에 있나 | 바뀐 점 |\n|---|---|---|---|---|\n| `widget_guide_viewed` | widget_type: home | 13831:31780 | 예 | |\n| (제안) `widget_tapped` | widget_state | 13831:31517 | 아니오 | 위젯 탭을 상태별로 셀 이벤트가 없다 |\n"
+    write("G15", "pass", {"s5/s5-events.md": ev_ok})
+    ev_bad = "| 이벤트 | 속성·값 | 화면(노드) | PRD 8절에 있나 | 바뀐 점 |\n|---|---|---|---|---|\n| WidgetTapped | widget_state | | 아니오 | |\n"
+    write("G15", "fail", {"s5/s5-events.md": ev_bad})
+    s6_fixtures()
     print(f"만든 샘플: {sum(1 for _ in FX.glob('*/*'))}개 → {FX}")
+
+
+# ── S6 아카이브 샘플 (G16~G20) ──────────────────────────────
+
+def _j(o):
+    return json.dumps(o, ensure_ascii=False)
+
+
+IMPACT_HEAD = "| 화면 | 핸드오프 노드 | 기존 메인 | 처리 | 바뀐 노드 수 | 영향 인스턴스 수 | 이유 |\n|---|---|---|---|---|---|---|\n"
+
+
+def s6_fixtures():
+    before = {
+        "taken": "before", "args": {"en_page": "15:3"},
+        "handoff": {"screens": [
+            {"id": "1:1", "name": "MyDiary/Review", "type": "FRAME"},
+            {"id": "3:3", "name": "MyForest/Diary/Details", "type": "INSTANCE", "main_page": "15:3", "overrides": 5},
+            {"id": "8:8", "name": "RolePlay/Talk", "type": "COMPONENT"},
+            {"id": "11:11", "name": "Quit/PopUp", "type": "FRAME"},
+        ]},
+        "pairs": [{"frame_id": "1:1", "main_id": "2:2", "name": "MyDiary/Review", "diff": 20},
+                  {"frame_id": "11:11", "main_id": "12:12", "name": "Quit/PopUp", "diff": 6}],
+        "lib_frames": [{"id": "4:4", "name": "BottomNavigation", "screen": "MyDiary/Review"}],
+        "en_mains": [
+            {"id": "2:2", "name": "MyDiary/Review", "hash": "a1", "ov": 3, "n": 1},
+            {"id": "6:6", "name": "MyForest/Diary/Details", "hash": "b1", "ov": 0, "n": 0},
+            {"id": "7:7", "name": "Settings", "hash": "c1", "ov": 0, "n": 0},
+            {"id": "12:12", "name": "Quit/PopUp", "hash": "d1", "ov": 0, "n": 0},
+        ],
+        "protected": [{"id": "13005:124477", "name": "KO", "hash": "k1"}],
+        "work_page_mains": [{"id": "8:8", "name": "RolePlay/Talk"}],
+    }
+    impact_ok = IMPACT_HEAD + (
+        "| MyDiary/Review | 1:1 | 2:2 | 메인 수정 | 20 | 1 | |\n"
+        "| MyForest/Diary/Details | 3:3 | 6:6 | 메인 수정 | 2 | 4 | |\n"
+        "| BottomNavigation | 4:4 | | 라이브러리 수정 | 5 | 30 | |\n"
+        "| Quit/PopUp | 11:11 | 12:12 | 해당 없음 | 6 | 0 | 문구만 다른 인스턴스로 둔다 |\n")
+    impact_bad = IMPACT_HEAD + (
+        "| MyDiary/Review | 1:1 | 2:2 | 고침 | 20 | 1 | |\n"
+        "| MyForest/Diary/Details | 3:3 | 9:9 | 컴포넌트로 만들기 | 2 | 4 | |\n"
+        "| Quit/PopUp | 11:11 | | 새 컴포넌트 | 6 | 0 | 롤플레이 전용 |\n")
+    after_ok = json.loads(_j(before))
+    after_ok["taken"] = "after"
+    after_ok["en_mains"][0]["hash"] = "a2"
+    after_ok["en_mains"][1]["hash"] = "b2"
+    after_bad = json.loads(_j(after_ok))
+    after_bad["en_mains"][2]["hash"] = "c2"
+    after_bad["en_mains"][0]["ov"] = 1
+    after_bad["protected"][0]["hash"] = "k2"
+    st = {"mode": "archive", "touched_mains": ["2:2", "6:6"]}
+
+    write("G16", "pass", {"s6/snapshot-before.json": _j(before), "s6/s6-impact.md": impact_ok}, st)
+    write("G16", "fail", {"s6/snapshot-before.json": _j(before), "s6/s6-impact.md": impact_bad}, st)
+    write("G17", "pass", {"s6/snapshot-before.json": _j(before), "s6/snapshot-after.json": _j(after_ok), "s6/s6-impact.md": impact_ok}, st)
+    write("G17", "fail", {"s6/snapshot-before.json": _j(before), "s6/snapshot-after.json": _j(after_ok), "s6/s6-impact.md": impact_bad}, st)
+    write("G18", "pass", {"s6/snapshot-before.json": _j(before), "s6/snapshot-after.json": _j(after_ok), "s6/s6-impact.md": impact_ok}, st)
+    write("G18", "fail", {"s6/snapshot-before.json": _j(before), "s6/snapshot-after.json": _j(after_bad), "s6/s6-impact.md": impact_ok}, st)
+
+    # G19 배치: default-archive.md 값(제목 152 · 흐름 시작 352 · 간격 100 · 라벨 78 · 라벨→화면 50 · 화면 사이 120 · 줄 사이 240)
+    W = 2000
+    def box(t, name, x, y, w, h, fill=None):
+        return {"type": t, "name": name, "x": x, "y": y, "w": w, "h": h, "fill": fill}
+    lab = "255,255,255@0.10"
+    flow1 = box("SECTION", "메인", 100, 352, 1800, 2400, "255,255,255@0.12")
+    flow1["children"] = [box("FRAME", "__", 100, 100, 906, 78, lab), box("COMPONENT", "RolePlay", 100, 228, 393, 852),
+                         box("FRAME", "RolePlay · 빈 상태", 613, 228, 393, 852),
+                         box("FRAME", "__", 100, 1320, 393, 78, lab), box("INSTANCE", "MyDiary/Review", 100, 1448, 393, 852)]
+    flow2 = box("SECTION", "대화", 100, 2852, 1800, 1180, "255,255,255@0.12")
+    flow2["children"] = [box("FRAME", "__", 100, 100, 393, 78, lab), box("COMPONENT", "RolePlay/Talk", 100, 228, 393, 852)]
+    arch = box("SECTION", "롤플레이", 0, 0, W, 4132, "67,69,66@1.00")
+    arch["children"] = [box("FRAME", "-", 100, 100, W - 200, 152, "112,155,99@1.00"), flow1, flow2]
+    arch["all_names"] = ["롤플레이", "-", "메인", "대화", "RolePlay", "RolePlay/Talk"]
+    arch["screen_frames"] = ["RolePlay · 빈 상태"]
+    arch["screens"] = [{"id": "8:8", "name": "RolePlay/Talk"}, {"id": "30:1", "name": "MyDiary/Review"},
+                       {"id": "30:2", "name": "MyForest/Diary/Details"}, {"id": "30:3", "name": "Quit/PopUp"}]
+    final_ok = {"taken": "final", "archive": arch, "en_mains": before["en_mains"], "work_page_mains": []}
+    final_bad = json.loads(_j(final_ok))
+    final_bad["archive"]["children"][1]["children"][4]["y"] = 1428
+    final_bad["archive"]["all_names"].append("AS-IS")
+    final_bad["archive"]["screen_frames"].append("MyDiary/Review")
+    final_bad["work_page_mains"] = [{"id": "8:9", "name": "RolePlay/Done"}]
+    write("G19", "pass", {"s6/snapshot-before.json": _j(before), "s6/snapshot-final.json": _j(final_ok), "s6/s6-impact.md": impact_ok}, st)
+    write("G19", "fail", {"s6/snapshot-before.json": _j(before), "s6/snapshot-final.json": _j(final_bad), "s6/s6-impact.md": impact_ok}, st)
+
+    log_ok = """[26-10-02] 롤플레이 화면 아카이브와 기존 화면 반영
+
+배경: 롤플레이 배포로 다이어리 화면에 진입점이 생겼다.
+
+1. 다이어리
+• MyDiary/Review 하단 탭에 롤플레이 탭 추가 // 롤플레이 진입점
+• MyForest/Diary/Details 하단에 롤플레이 시작 버튼 추가 // 일기에서 바로 연습
+
+2. 공용 부품
+• BottomNavigation 4탭으로 변경 // 롤플레이 탭 추가
+
+영향 범위
+• 하단 탭이 있는 모든 화면
+"""
+    log_bad = """롤플레이 정리
+
+1. 다이어리
+• MyDiary/Review 하단 탭 변경
+
+2. 기타
+• 자잘한 수정 // 정리
+"""
+    write("G20", "pass", {"s6/snapshot-before.json": _j(before), "s6/snapshot-after.json": _j(after_ok), "s6/s6-impact.md": impact_ok, "s6/s6-library-log.md": log_ok}, st)
+    write("G20", "fail", {"s6/snapshot-before.json": _j(before), "s6/snapshot-after.json": _j(after_ok), "s6/s6-impact.md": impact_ok, "s6/s6-library-log.md": log_bad}, st)
 
 
 if __name__ == "__main__":

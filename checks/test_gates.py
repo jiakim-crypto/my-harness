@@ -11,7 +11,7 @@ EXPECT = {"pass": 0, "fail": 1}
 
 def main():
     bad = 0
-    for gate_dir in sorted(FX.iterdir(), key=lambda p: int(p.name[1:])):
+    for gate_dir in sorted((d for d in FX.iterdir() if d.is_dir() and d.name[1:].isdigit()), key=lambda p: int(p.name[1:])):
         for kind in ("pass", "fail"):
             d = gate_dir / kind
             r = subprocess.run([sys.executable, str(HERE / "gates.py"), gate_dir.name, str(d)],

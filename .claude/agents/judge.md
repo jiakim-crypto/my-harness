@@ -15,7 +15,7 @@ tools: Read, Glob, Grep, Bash
 python3 checks/gates.py <게이트> runs/<PRD>
 ```
 
-   G1~G13 모두 이 명령 하나다. 종료 코드 0은 통과, 1은 실패, 2는 셀 수 없음이다. G8·G10은 figma·policy 에이전트가 적어 둔 figma-lint 결과 줄을 읽는다
+   G1~G20 모두 이 명령 하나다. 종료 코드 0은 통과, 1은 실패, 2는 셀 수 없음이다. G8·G10은 figma·policy 에이전트가 적어 둔 figma-lint 결과 줄을 읽는다. G16~G20은 오케스트레이터가 저장한 s6/snapshot-*.json을 읽는다
 
 3. 결과를 이 형식으로 돌려준다
 

@@ -65,7 +65,7 @@ def main():
         pg.wait_for_timeout(300)
         pg.evaluate("""(html) => { const d = document.createElement('div');
           d.innerHTML = html; d.style.cssText = 'position:sticky;top:0;z-index:100000;background:#fff;border-bottom:1px solid #ccc;padding:10px 16px;font:600 13px -apple-system,sans-serif';
-          document.body.prepend(d); }""", "표시 캡처 · " + LEGEND)
+          document.body.prepend(d); }""", "<div style='margin-bottom:6px'>표시 캡처 · 게이트는 아래 이름표만 센다. 이름표가 제자리에 붙었는지 본다: 입력은 사진·글을 넣는 곳, 닫기는 ✕, 라이브러리는 실제 앱 부품을 그대로 쓴 곳</div>" + LEGEND)
         counts = pg.evaluate("(sels) => sels.map(s => document.querySelectorAll(s).length)", [m[0] for m in MARKS])
         pg.evaluate(JS, [list(m) for m in MARKS])
         pg.screenshot(path=str(out), full_page=True)
